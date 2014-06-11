@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Click Race!</title>
+    </head>
+    <body>
+        <h1>Our total clicks: <span id="totalclicks">press the button and then I'll tell you</span>!</h1>
+        <button id="clicker" type="button">CLICK ME!</button>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <script>
+            var socket = io();
+            socket.on('new counter', function(counter) {
+                $('#totalclicks').html(counter.toString());
+            });
+
+            $('#clicker').click( function() {
+                socket.emit('click', '');
+            });
+        </script>
+    </body>
+</html>

@@ -1,6 +1,10 @@
-chatty-chatty
-=============
+click-race
+==========
 
-Learning Javascript, Node, and socket.io.
+Multiplayer cookie clicker! It doesn't have the cookies, but it has the clicks!
 
-We'll see where this goes. Probably's gonna end up as a basic chat room.
+##changelog
+
+###Version 0.0.1
+
+Global counter that gets incremented and pushed to everyone whenever a user presses a button
