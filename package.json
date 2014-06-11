@@ -1,6 +1,6 @@
 {
   "name": "chatty-chatty",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Go Chatty Chatty and go Nuts!",
   "dependencies": {
     "socket.io": "~1.0.4"

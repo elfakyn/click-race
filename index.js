@@ -20,33 +20,38 @@ function httpHandler (req, res) {
 // USERS AND CONNECTIONS
 
 var sockets = [];
-var idCounter = 0;
 var counter = 0;
 
-var findSocket = function(id) {
+var lowestAvailableSocket = function() {
     for (var i = 0, len = sockets.length; i < len; i++) {
-        if (sockets[i].id === id) {
+        if (sockets[i] === null) {
             return i;
         }
     }
-    return -1;
+    return len;
 }
 
 io.on('connection', function(socket) {
-    currentId = ++idCounter;
-    sockets.push({nick: '', id: currentId, counter: 0}); // todo: actually use nick, counter
-    console.log('new connection: ' + idCounter);
-    socket.emit('new counter', counter);
+    var currentId = lowestAvailableSocket();
+    sockets[currentId] = {nick: 'Anonymous', counter: 0}; // todo: actually use nick, counter
+    console.log('new connection: ' + currentId);
+    socket.broadcast.emit('join', sockets[currentId]); // tell others a new user joined
+    socket.emit('welcome', sockets); // give new user list of people and scores
 
     socket.on('click', function() {
         counter++;
+        sockets[currentId].counter++;
         console.log('new counter by ' + currentId + ': ' +counter);
-        io.emit('new counter', counter);
+        socket.emit('new personal counter', sockets[currentId].counter);
+        io.emit('new total counter', counter);
+        io.emit('welcome', sockets); // temporary
     });
 
     socket.on('disconnect', function() {
         console.log('user ' + currentId + ' disconnected');
-        sockets.splice(sockets[findSocket(currentId)],1);
+        sockets[currentId] = null;
+        io.emit('leave', currentId);
+        io.emit('welcome', sockets); // temporary
     });
 });
 

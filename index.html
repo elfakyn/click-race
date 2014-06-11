@@ -5,19 +5,40 @@
     </head>
     <body>
         <h1>Our total clicks: <span id="totalclicks">press the button and then I'll tell you</span>!</h1>
+        <h2>My counter: <span id="myclicks">0</span>.</h2>
         <button id="clicker" type="button">CLICK ME!</button>
+        <h2>People:</h2>
+        <ul id="userlist">Users</ul>
 
         <script src="/socket.io/socket.io.js"></script>
         <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
         <script>
             var socket = io();
-            socket.on('new counter', function(counter) {
+            socket.on('new total counter', function(counter) {
                 $('#totalclicks').html(counter.toString());
+            });
+
+            socket.on('new personal counter', function(counter) {
+                $('#myclicks').html(counter.toString());
             });
 
             $('#clicker').click( function() {
                 socket.emit('click', '');
             });
+
+            socket.on('welcome', function(sockets) {
+                $('#userlist').html(generateList(sockets))
+            });
+
+            function generateList (sockets) {
+                var thing = '';
+                for (var i = 0, len = sockets.length; i<len; i++) {
+                    if (sockets[i] !== null) {
+                        thing += '<li>' + sockets[i].nick + ': ' + sockets[i].counter + '</li>';
+                    }
+                }
+                return thing;
+            }
         </script>
     </body>
 </html>
