@@ -6,7 +6,8 @@
     <body>
         <h1>Our total clicks: <span id="totalclicks">press the button and then I'll tell you</span>!</h1>
         <h2>My counter: <span id="myclicks">0</span>.</h2>
-        <button id="clicker" type="button">CLICK ME!</button>
+        <button id="clicker" type="button">CLICK ME!</button><br><br>
+        Nickname: <input type="text" id="nick" value="Anonymous"><button id="changenick" type="button">Change</button>
         <h2>People:</h2>
         <ul id="userlist">Users</ul>
 
@@ -14,6 +15,7 @@
         <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
         <script>
             var socket = io();
+            var socketsCopy = [];
             socket.on('new total counter', function(counter) {
                 $('#totalclicks').html(counter.toString());
             });
@@ -23,12 +25,39 @@
             });
 
             $('#clicker').click( function() {
-                socket.emit('click', '');
+                socket.emit('click');
+            });
+
+            $('#changenick').click( function() {
+                socket.emit('change nick', $('#nick').val());
             });
 
             socket.on('welcome', function(sockets) {
                 $('#userlist').html(generateList(sockets))
+                socketsCopy = sockets;
             });
+
+            socket.on('join', function(id, socket) {
+                socketsCopy[id] = socket;
+                $('#userlist').html(generateList(socketsCopy));
+            });
+
+            socket.on('leave', function(id) {
+                socketsCopy[id] = null;
+                $('#userlist').html(generateList(socketsCopy));
+            });
+
+            socket.on('new counter', function(id, counter) {
+                socketsCopy[id].counter = counter;
+                $('#userlist').html(generateList(socketsCopy));
+            });
+
+            socket.on('nick changed', function(id, nick) {
+                socketsCopy[id].nick = nick;
+                $('#userlist').html(generateList(socketsCopy));
+            });
+
+
 
             function generateList (sockets) {
                 var thing = '';

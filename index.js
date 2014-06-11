@@ -34,24 +34,29 @@ var lowestAvailableSocket = function() {
 io.on('connection', function(socket) {
     var currentId = lowestAvailableSocket();
     sockets[currentId] = {nick: 'Anonymous', counter: 0}; // todo: actually use nick, counter
-    console.log('new connection: ' + currentId);
-    socket.broadcast.emit('join', sockets[currentId]); // tell others a new user joined
+    //console.log('new connection: ' + currentId);
+    socket.broadcast.emit('join', currentId, sockets[currentId]); // tell others a new user joined
     socket.emit('welcome', sockets); // give new user list of people and scores
 
     socket.on('click', function() {
         counter++;
         sockets[currentId].counter++;
-        console.log('new counter by ' + currentId + ': ' +counter);
+        //console.log('new counter by ' + currentId + ': ' +counter);
         socket.emit('new personal counter', sockets[currentId].counter);
         io.emit('new total counter', counter);
-        io.emit('welcome', sockets); // temporary
+        io.emit('new counter', currentId, sockets[currentId].counter);
+    });
+
+    socket.on('change nick', function(nick) {
+        console.log('user ' + currentId + ' (' + sockets[currentId].nick + ') changed nick to ' + nick);
+        sockets[currentId].nick = nick;
+        io.emit('nick changed', currentId, nick);
     });
 
     socket.on('disconnect', function() {
-        console.log('user ' + currentId + ' disconnected');
+        //console.log('user ' + currentId + ' disconnected');
         sockets[currentId] = null;
         io.emit('leave', currentId);
-        io.emit('welcome', sockets); // temporary
     });
 });
 
